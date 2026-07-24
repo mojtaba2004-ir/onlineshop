@@ -1,0 +1,887 @@
+import data
+import functions
+#--------------------------------------------------
+import re
+import colorama
+colorama.init(autoreset=True)
+from datetime import datetime, date
+#--------------------------------------------------
+
+
+#&--------------------------------------------------< 1       CLASS PRODUCT        >--------------------------------------------------
+class Product:
+    def __init__(self):
+        self._product_id = functions.id_generator()
+        self._product_name = ""
+        self._brand = ""
+        self._price = 0.0
+        self._color = []
+        self._weight = 0.0
+        self._quantity = 0
+        self._purchased_quantity = 0
+        self._product_type = ""
+
+
+    @property
+    def product_name(self):
+        return self._product_name
+    @product_name.setter
+    def product_name(self, value):
+        if value == "":
+            print(colorama.Fore.YELLOW + "product name cannot be empty.")
+        elif len(value) < 2:
+            print(colorama.Fore.YELLOW + "the length of product name can not be smaller than 2.")
+        elif isinstance(value, str) and len(value) >= 3:
+            self._product_name = value
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: enter a valid name [mojtaba, ahmad...].")
+
+    @property
+    def brand(self):
+        return self._brand
+    @brand.setter
+    def brand(self, value):
+        if value == "":
+            print(colorama.Fore.YELLOW + "brand cannot be empty.")
+        elif len(value) < 1:
+            print(colorama.Fore.YELLOW + "the length of brands can not be smaller than 1.")
+        elif value in data.brands:
+            self._brand = value
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: enter a valid brand(apple, samsung...).")
+
+    @property
+    def price(self):
+        return self._price
+    @price.setter
+    def price(self, value):
+        if value == 0:
+            print(colorama.Fore.YELLOW + "price cannot be entered zero.")
+        elif value < 20:
+            print(colorama.Fore.YELLOW + "the price of products cannot be under zero.")
+        elif isinstance(value, (float, int)) and value >= 21:
+            self._price = value
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: enter a valid price(1200, 900...)")
+
+    @property
+    def color(self):
+        return self._color
+    @color.setter
+    def color(self, value):
+        if value == "":
+            print(colorama.Fore.YELLOW + "color cannot be empty.")
+        elif len(value) < 2:
+            print(colorama.Fore.YELLOW + "the length of color can not be smaller than 2.")
+        elif isinstance(value, str) and len(value) >= 3:
+            self._color = value
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: invalid color(black, white...)")        
+
+    @property
+    def weight(self):
+        return self._weight
+    @weight.setter
+    def weight(self, value):
+        if value == 0.0:
+            print(colorama.Fore.YELLOW + "weight cannot be empty.")
+        elif value < 5:
+            print(colorama.Fore.YELLOW + "the weight of product can not be smaller than 5.")
+        elif isinstance(value, float) and  value >= 6:  
+            self._weight = value
+        else:
+            print(colorama.Fore.YELLOW + "ERROR, enter a valid weight[12.5, 120...]")
+
+    @property
+    def camera_megapixels(self):
+        return self._camera_megapixels
+    @camera_megapixels.setter
+    def camera_megapixels(self, value):
+        if value == 0:
+            print(colorama.Fore.YELLOW + "camera megapixels cannot be empty.")
+        elif isinstance(value, int) and value in data.camera_megapixels:
+            self._camera_megapixels = value
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: enter a valid camera megapixels[32, 48, 64, 108...]")
+
+
+    @property
+    def quantity(self):
+        return self._quantity
+    @quantity.setter
+    def quantity(self, value):
+        if value == "":
+            print(colorama.Fore.YELLOW + "quantity cannot be empty.")
+        elif not str(value).isdigit():
+            print(colorama.Fore.YELLOW + "quantity must be a number.")
+        elif int(value) <= 0:
+            print(colorama.Fore.YELLOW + "quantity must be greater than 0.")
+        else:
+            self._quantity = int(value)
+
+
+    @property
+    def purchased_quantity(self):
+        return self._purchased_quantity
+    @purchased_quantity.setter
+    def purchased_quantity(self, value):
+        if not str(value).isdigit():
+            print(colorama.Fore.YELLOW + "purchased quantity must be a number.")
+        elif int(value) <= 0:
+            print(colorama.Fore.YELLOW + "purchased quantity must be greater than 0.")
+        else:
+            self._quantity = int(value)
+
+
+    @property
+    def product_type(self):
+        return self._product_type
+
+    @product_type.setter
+    def product_type(self, value):
+        if not isinstance(value, str):
+            raise TypeError("Product type must be a string")
+
+        value = value.strip().lower()
+
+
+        if value not in data.allowed:
+            raise ValueError(
+                f"Invalid product type. Choose: {data.allowed}"
+            )
+
+        self._product_type = value
+
+
+#&--------------------------------------------------< 2       CLASS  MOBILE        >--------------------------------------------------
+class Mobile(Product):
+    def __init__(self):
+        super().__init__()
+        self._sim_slots = 1
+        self._battery_life = 0.0
+        self._storage_capacity = 0
+        self._ram = 0
+        self._front_camera = 0
+        self._main_camera = 0
+        self._display_screen = 0.0
+
+    @property
+    def sim_slots(self):
+        return self._sim_slots
+    sim_slots.setter
+    def sim_slots(self, value):
+        if value == 0:
+            print(colorama.Fore.YELLOW + "sim_slots can ot be zero.")
+        elif value in [1, 2]:
+            print(colorama.Fore.GREEN + f"the sim_slots set to {value}")
+            self._sim_slots = value
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: invalid sim slots.[1, 2]")
+
+    @property
+    def battery_life(self):
+        return self._battery_life
+    battery_life.setter
+    def battery_life(self, value):
+        if value < 100:
+            print(colorama.Fore.YELLOW + "enter a ligical battery life.")
+        elif isinstance(value, float) and value > 100:
+            print(colorama.Fore.GREEN + f"the battery life set to {value}")
+            self._battery_life = value
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: enter a valid battery life[5000,]")
+
+    @property
+    def storage_capacity(self):
+        return self._storage_capacity
+    @storage_capacity.setter
+    def storage_capacity(self, value):
+        if value == 0:
+            print(colorama.Fore.YELLOW + "storage capacity cannot be empty")
+        elif value in data.storage_capacity:
+            print(colorama.Fore.GREEN + f"the storage capacity set to {value}")
+            self._storage_capacity = value
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: enter a valid storage capacity.[128, 256, 512, 1024]")
+
+    @property
+    def ram(self):
+        return self._ram
+    @ram.setter
+    def ram(self, value):
+        if value == 0:
+            print(colorama.Fore.YELLOW + "ram cannot be entered zero.")
+        elif not isinstance(value, int):
+            print(colorama.Fore.YELLOW + "enter a valid number[4, 8, 12]")
+        elif value in data.ram:
+            print(colorama.Fore.GREEN + f"the ram set to {value}")
+            self._ram = value
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: enter a valid ram[4, 8, 12]")
+
+    @property
+    def front_camera(self):
+        return self._front_camera
+    @front_camera.setter
+    def front_camera(self, value):
+        if value == 0:
+            print(colorama.Fore.YELLOW + "the front camera cannot be entered 0.")
+        elif not isinstance(value, int):
+            print(colorama.Fore.YELLOW + "enter a valid integer.")
+        elif value in data.front_camera:
+            print(colorama.Fore.GREEN + f"the front camera set to {value}")
+            self._front_camera = value
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: invalid front camera[8, 12, 20]")
+
+    @property
+    def main_camera(self):
+        return self._main_camera
+    @main_camera.setter
+    def main_camera(self, value):
+        if value == 0:
+            print(colorama.Fore.YELLOW + "the main camera cannot be entered 0.")
+        elif not isinstance(value, int):
+            print(colorama.Fore.YELLOW + "enter a valid integer.")
+        elif value in data.main_camera:
+            print(colorama.Fore.GREEN + f"the main camera set to {value}")
+            self._main_camera = value
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: invalid main camera [12, 16, 32, 48, 64, 108, 200]")
+
+    @property
+    def display_screen(self):
+        return self._display_screen
+    @display_screen.setter
+    def display_screen(self, value):
+        if value <= 0.0:
+            print(colorama.Fore.YELLOW + "the display screen cannot be entered zero or negative.")
+        elif not isinstance(value, float):
+            print(colorama.Fore.YELLOW + "enter a valid display screen")
+        else:
+            print(colorama.Fore.GREEN + f"the display screen set to {value}")
+            self._display_screen = value
+
+
+#&--------------------------------------------------< 3       CLASS  CAMERA        >--------------------------------------------------
+class Camera(Product):
+    def __init__(self):
+        super().__init__()
+        self._camera_megapixels = 0.0
+        self._battery_life = 0.0         # hours
+        self._macro_mode = ""        #close-up pictures
+        self._video_resolution = 0
+        self._water_resistant = ""
+        self._microphone_input = ""
+    
+    @property
+    def camera_megapixels(self):
+        return self._camera_megapixels
+
+    # Setter method
+    @camera_megapixels.setter
+    def camera_megapixels(self, value):
+        if value in data.valid_megapixels:
+            self._camera_megapixels = value
+            print(colorama.Fore.GREEN + f"Camera megapixels set to {value} MP.")
+        else:
+            print(colorama.Fore.YELLOW + f"ERROR: {value} MP is not a valid option.")
+
+    @property
+    def batter_life(self):
+        return self._battery_life
+    batter_life.setter
+    def battery_life(self, value):
+        if value < 5 or value > 100000:
+            print(colorama.Fore.YELLOW + "enter a logical battery life.")
+        elif isinstance(value, int) and value > 100000:
+            print(colorama.Fore.GREEN + f"the battery life set to {value} hours.")
+            self._battery_life = value
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: enter a valid battery life[2000, 3400...]")
+
+    @property
+    def macro_mode(self):
+        return self._macro_mode
+    macro_mode.setter
+    def macro_mode(self, value):
+        if isinstance(value, str):
+            print(colorama.Fore.GREEN + f"macro mode set to {value}.")
+            self._macro_mode = value
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: macro mode must be a string[yes/no].")
+
+    @property
+    def video_resolution(self):
+        return self._video_resolution
+    video_resolution.setter
+    def video_resolution(self, value):
+        if value in data.video_resolution:
+            print(colorama.Fore.GREEN + f"video resolution set to {value}")
+            self._video_resolution = value
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: invalid video resolution[240, 360, 480, 720...].")
+
+    @property
+    def water_resistant(self):
+        return self._water_resistant
+    @water_resistant.setter
+    def water_resistant(self, value):
+        if value in data.yes:
+            print(colorama.Fore.GREEN + f"water resistant set to {value}.")
+            self._water_resistant = "yes"
+        elif value in data.no:
+            self._water_resistant = "no"
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: water resistant must be a string[yes/no].")        
+
+    @property
+    def microphone_input(self):
+        return self._microphone_input
+    @microphone_input.setter
+    def microphone_input(self, value):
+        if value in data.yes:
+            print(colorama.Fore.GREEN + f"microphone input set to {value}.")
+            self._microphone_input = "yes"
+        elif value in data.no:
+            self._microphone_input = "no"
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: microphone input must be a string[yes/no].")
+
+
+#&--------------------------------------------------< 4       CLASS  LAPTOP        >--------------------------------------------------
+class Laptop(Product):
+    def __init__(self):
+        super().__init__()
+        self._processor = ""
+        self._display_size = 0.0
+        self._ram_size = 0
+        self._graphic_card = "rtx"
+        self._has_touch_screen = ""
+
+    @property
+    def processor(self):
+        return self._processor
+    @processor.setter
+    def processor(self, value):
+            if len(value) == 0:
+                print(colorama.Fore.YELLOW + "Processor cannot be empty.")
+            elif isinstance(value, str) and len(value) > 5:
+                print(colorama.Fore.GREEN + f"the processor set to {value}.")
+                self._processor=value
+            else:
+                print(colorama.Fore.YELLOW + "ERROR: Processor must be longer than 5 characters. Try again!")
+
+    @property
+    def display_size(self):
+        return self._display_size
+    @display_size.setter
+    def display_size(self, value):
+        if value <= 0.0:
+            print(colorama.Fore.YELLOW + "The display screen cannot be zero or negative.")
+        elif not isinstance(value, (float, int)):
+            print(colorama.Fore.YELLOW + "Please enter a valid display size (a positive number).")
+        else:
+            self._display_size = float(value)  # Store the valid display size
+            print(colorama.Fore.GREEN + f"The display screen has been set to {self._display_size} inches.")
+
+
+    @property
+    def ram_size(self):
+        return self._ram_size
+    @ram_size.setter
+    def ram_size(self, value):
+        """Setter for ram_size with validation"""
+        if value == 0:
+            print(colorama.Fore.YELLOW + "RAM size cannot be zero.")
+        elif not isinstance(value, int):
+            print(colorama.Fore.YELLOW + f"Please enter a valid number {data.ram}.")
+        elif value in data.ram :
+            self._ram_size = value  # Store the valid RAM size
+            print(colorama.Fore.GREEN + f"The RAM has been set to {value}GB.")
+        else:
+            print(colorama.Fore.YELLOW + f"ERROR: Please enter a valid RAM size {data.ram}.")
+
+
+    @property
+    def graphic_card(self):
+        return self._graphic_card
+    @graphic_card.setter
+    def graphic_card(self, value):
+        if value == "":
+            print(colorama.Fore.YELLOW + "graphic card cannot be empty.")
+        elif len(value) <= 5:
+            raise ValueError(colorama.Fore.YELLOW + "Graphic card name is too short.")
+        elif isinstance(value, str) and len(value) > 6:
+            print(colorama.Fore.GREEN + f"Graphic card set to {value}.")
+            self._graphic_card = value
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: enter a valid graphic card.")
+            
+
+
+    @property
+    def has_touch_screen(self):
+        return self._has_touch_screen
+    @has_touch_screen.setter
+    def has_touch_screen(self, value):
+        if value in data.yes:
+            self._has_touch_screen = "yes"
+        elif value in data.no:
+            self._has_touch_screen = "no"
+        else:
+            print(colorama.Fore.YELLOW + "ERROR: enter yes/no.")
+
+
+#&--------------------------------------------------< 5        CLASS HUMAN         >--------------------------------------------------
+class Human:
+    def __init__(self):
+        self._first_name = ""
+        self._last_name = ""
+        self._age = 0
+        self._gender = ""
+        self._phone = ""
+        self._address = ""
+        self._email = ""
+
+
+    @property
+    def first_name(self):
+        return self._first_name
+    @first_name.setter
+    def first_name(self, value):
+        if value == "":
+            print(colorama.Fore.YELLOW + "Name cannot be empty.")
+        elif not str(value).isalpha():
+            print(colorama.Fore.YELLOW + "The name must contain only alphabetic characters.")
+        elif len(value) < 2:
+            print(colorama.Fore.YELLOW + "Name must be at least 2 characters long.")
+        else:
+            print(colorama.Fore.GREEN + f"Name set to {value}.")
+            self._first_name = value
+
+    @property
+    def last_name(self):
+        return self._last_name
+    @last_name.setter
+    def last_name(self, value):
+        if value == "":
+            print(colorama.Fore.YELLOW + "Name cannot be empty.")
+        elif not value.isalpha():
+            print(colorama.Fore.YELLOW + "The name must contain only alphabetic characters.")
+        elif len(value) < 2:
+            print(colorama.Fore.YELLOW + "Name must be at least 2 characters long.")
+        else:
+            print(colorama.Fore.GREEN + f"Name set to {value}.")
+            self._last_name = value
+
+    @property
+    def age(self):
+        return self._age
+    @age.setter
+    def age(self, value):
+        if not isinstance(value, int):
+            print(colorama.Fore.YELLOW + "Enter numeric age.")
+            return
+
+        if value == 0:
+            print(colorama.Fore.YELLOW + "Age cannot be zero.")
+        elif value < 18:
+            print(colorama.Fore.YELLOW + "Age under 18 is illegal.")
+        elif value > 100:
+            print(colorama.Fore.YELLOW + "Age cannot be greater than 100.")
+        else:
+            print(colorama.Fore.GREEN + f"age set to {value}")
+            self._age = value
+
+    @property
+    def gender(self):
+        return self._gender
+    @gender.setter
+    def gender(self, value):
+        if value in data.valid_genders:
+            print(colorama.Fore.GREEN + f"gender set to{value}")
+            self._gender = value
+        else:
+            print(colorama.Fore.YELLOW + f"the gender must be {data.valid_genders}")
+
+    @property
+    def phone(self):
+        return self._phone
+
+    @phone.setter
+    def phone(self, value):
+        pattern = r"^(098|\+98)\d{10}$"
+
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("Phone number must be a non-empty string.")
+
+        if not re.match(pattern, value):
+            raise ValueError("Phone number must start with '098' or '+98' followed by exactly 10 digits.")
+
+        print(colorama.Fore.GREEN + f"phone number set to {value}.")
+        self._phone = value  # Set only after validation passes
+
+
+    @property
+    def address(self):
+        return self._address
+    @address.setter
+    def address(self, value):
+        if not isinstance(value, str):
+            print(colorama.Fore.YELLOW + "address must be a string.")
+            return
+
+        if value.strip() == "":
+            print(colorama.Fore.YELLOW + "address cannot be empty.")
+            return
+
+        if len(value.strip()) < 5:
+            print(colorama.Fore.YELLOW + "address is too short. enter at least 5 characters.")
+            return
+
+        pattern = r"^[a-zA-Z0-9\s,.\-#]+$"
+        if not re.match(pattern, value):
+            print(colorama.Fore.YELLOW + "address contains invalid characters.")
+            return
+
+        self._address = value.strip()
+        print(colorama.Fore.GREEN + f"address set to: {self._address}")
+
+    @property
+    def email(self):
+        return self._email
+    @email.setter
+    def email(self, value):
+        pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+        if not isinstance(value, str):
+            print(colorama.Fore.YELLOW + "email must be a string.")
+        
+        elif value.strip() == "":
+            print(colorama.Fore.YELLOW + "email cannot be empty.")        
+        
+        elif not re.match(pattern, value):
+            print(colorama.Fore.YELLOW + "invalid email format.")
+            return
+        
+        else:
+            print(colorama.Fore.GREEN + f"email set to '{value}'.")
+            self._email = value
+
+
+#&--------------------------------------------------< 6       CLASS  SELLER        >--------------------------------------------------
+class Seller(Human):
+    def __init__(self):
+        super().__init__()
+        self._seller_id = ""
+        self._store_name = ""
+        self._plaque_store = ""
+        self._business_license = ""
+        self._login_time = datetime.now()  # Added login_time field
+
+    @property
+    def seller_id(self):
+        return self._seller_id  # Fixed: return the private attribute
+
+    @seller_id.setter
+    def seller_id(self, value):
+        self._seller_id = value  # Fixed: set the private attribute
+
+    @property
+    def store_name(self):
+        return self._store_name
+
+    @store_name.setter
+    def store_name(self, value):
+        pattern = r"^[a-zA-Z0-9 &\-\']+$"
+        if not isinstance(value, str):
+            print(colorama.Fore.YELLOW + "store name must be a string.")
+        elif len(value.strip()) == 0:
+            print(colorama.Fore.YELLOW + "store name cannot be empty.")
+        elif len(value) < 3:
+            print(colorama.Fore.YELLOW + "store name must be at least 3 characters long.")
+            return
+        elif not re.match(pattern, value):
+            print(colorama.Fore.YELLOW + "Store name contains invalid characters.[letters, numbers, spaces, &, -, ']")
+        else:
+            print(colorama.Fore.GREEN + f"Store name set to '{value}'.")
+            self._store_name = value
+
+    @property
+    def plaque_store(self):
+        return self._plaque_store
+
+    @plaque_store.setter
+    def plaque_store(self, value):
+        if not isinstance(value, str):
+            print(colorama.Fore.YELLOW + "plaque store must be a string.")
+            return
+        if value.strip() == "":
+            print(colorama.Fore.YELLOW + "plaque store cannot be empty.")
+            return
+        if len(value) < 2:
+            print(colorama.Fore.YELLOW + "plaque store must be at least 2 characters long.")
+            return
+        if not re.match(r"^[A-Za-z]+", value):
+            print(colorama.Fore.YELLOW + "plaque store must start with letters.")
+            return
+        if not value[-1].isdigit():
+            print(colorama.Fore.YELLOW + "plaque store must end with a number.")
+            return
+        print(colorama.Fore.GREEN + f"plaque store set to '{value}'.")
+        self._plaque_store = value
+
+    @property
+    def business_license(self):
+        return self._business_license
+
+    @business_license.setter
+    def business_license(self, value):
+        pattern = r"^1404[A-Za-z0-9]{6,25}$"
+        if not isinstance(value, str):
+            raise ValueError("Business license must be a string.")
+        elif value.strip() == "":
+            raise ValueError("Business license cannot be empty.")
+        elif not re.match(pattern, value):
+            raise ValueError("Invalid business license format. Must start with '1404' and be followed by 9-25 letters/digits.")
+        else:
+            self._business_license = value
+
+    @property
+    def login_time(self):
+        return self._login_time  # Added getter for login_time
+
+    @login_time.setter
+    def login_time(self, value):
+        from datetime import datetime
+        if value is not None and not isinstance(value, datetime):
+            raise ValueError("login_time must be a datetime object or None")
+        self._login_time = value  # Added setter for login_time
+
+
+#&--------------------------------------------------< 7      CLASS  CUSTOMER       >--------------------------------------------------
+class Customer(Human):
+    def __init__(self):
+        super().__init__()
+        self._customer_id = ""
+        self._date_of_birth = None
+        self._purchase_history = []
+        self._login_time = datetime.now()
+
+
+    @property
+    def customer_id(self):
+        return self._customer_id
+
+    @customer_id.setter
+    def customer_id(self, value):
+        self._customer_id = value
+
+
+    @property
+    def date_of_birth(self):
+        return self._date_of_birth
+
+    @date_of_birth.setter
+    def date_of_birth(self, value):
+        if isinstance(value, date):
+            self._date_of_birth = value
+        elif isinstance(value, str):
+            # Try to convert string to date
+            try:
+                self._date_of_birth = datetime.strptime(value, "%Y-%m-%d").date()
+            except ValueError:
+                raise ValueError("date_of_birth must be a date object or a string in 'YYYY-MM-DD' format")
+        elif value is None:
+            self._date_of_birth = None
+        else:
+            raise TypeError("date_of_birth must be a datetime.date or string")
+
+
+
+    @property
+    def login_time(self):
+        return self._login_time
+
+    @login_time.setter
+    def login_time(self, value):
+        from datetime import datetime
+        if value is not None and not isinstance(value, datetime):
+            raise ValueError("login_time must be a datetime object or None")
+        self._login_time = value
+
+
+#&--------------------------------------------------< 8        CLASS ADMIN         >--------------------------------------------------
+class Admin(Human):
+    def __init__(self):
+        super().__init__()
+        self.__admin_id = ""
+        self.__password = ""
+        self._main_admin = 0
+
+    @property
+    def id_number(self):
+        return self.__admin_id
+
+    @id_number.setter
+    def id_number(self, value):
+        self.__admin_id = value
+
+    @property
+    def main_admin(self):
+        return self._main_admin
+
+    @main_admin.setter
+    def main_admin(self, value):
+        if isinstance(value, int):
+            self._main_admin = value
+        else:
+            print(colorama.Fore.YELLOW + "invalid value")
+
+
+#&--------------------------------------------------< 9      CLASS ORDERITEM       >--------------------------------------------------
+class OrderItem:
+    def __init__(self, product: Product, quantity: int):
+        if quantity <= 0:
+            raise ValueError("Quantity must be greater than 0")
+
+        self.order_item_id = functions.id_generator()
+        self.product_id = product.product_id
+        self.product_name = product.product_name
+        self.brand = product.brand
+        self.unit_price = product.price
+        self.quantity = quantity
+        self.total_price = self.unit_price * self.quantity
+
+    def update_quantity(self, new_quantity: int):
+        if new_quantity <= 0:
+            raise ValueError("Quantity must be greater than 0")
+
+        self.quantity = new_quantity
+        self.total_price = self.unit_price * self.quantity
+
+    def to_dict(self):
+        return {
+            "order_item_id": self.order_item_id,
+            "product_id": self.product_id,
+            "product_name": self.product_name,
+            "brand": self.brand,
+            "unit_price": self.unit_price,
+            "quantity": self.quantity,
+            "total_price": self.total_price
+        }
+
+    def __str__(self):
+        return (
+            f"{self.product_name} ({self.brand}) | "
+            f"{self.quantity} x {self.unit_price} = {self.total_price}"
+        )
+
+
+#&--------------------------------------------------< 9        CLASS ORDER         >--------------------------------------------------
+class Order:
+
+    def __init__(self, customer: Customer, seller: Seller):
+        self.order_id = functions.id_number_generator()
+        self.customer = customer
+        self.seller = seller
+        self.items: list[OrderItem]= []
+        self.order_date = datetime.now()
+        self.status = data.order_status
+        self.shipping_address = customer.address
+        self.total_price = 0.0
+        self.payment_status = str
+
+
+    # ---------- Customer ----------
+    @property
+    def customer(self) -> "Customer":
+        return self._customer
+
+    @customer.setter
+    def customer(self, value: "Customer"):
+        if value is None:
+            raise ValueError("customer cannot be None")
+        if not hasattr(value, "address"):
+            raise TypeError("customer must have an address attribute")
+        self._customer = value
+
+    # ---------- Seller ----------
+    @property
+    def seller(self) -> "Seller":
+        return self._seller
+
+    @seller.setter
+    def seller(self, value: "Seller"):
+        if value is None:
+            raise ValueError("seller cannot be None")
+        self._seller = value
+
+    # ---------- Items ----------
+    @property
+    def items(self) -> list["OrderItem"]:
+        return self._items
+
+    @items.setter
+    def items(self, value: list):
+        if not isinstance(value, list):
+            raise TypeError("items must be a list")
+        for item in value:
+            self._validate_order_item(item)
+        self._items = value
+        self._recalculate_total()
+
+    # ---------- Order Date ----------
+    @property
+    def order_date(self) -> datetime:
+        return self._order_date
+
+    @order_date.setter
+    def order_date(self, value: datetime):
+        if not isinstance(value, datetime):
+            raise TypeError("order_date must be a datetime object")
+        self._order_date = value
+
+    # ---------- Status ----------
+    @property
+    def status(self):
+        return self._status
+
+    @status.setter
+    def status(self, value):
+        if value not in data.order_status:
+            raise ValueError(f"Invalid order status: {value}")
+        self._status = value
+
+    # ---------- Shipping Address ----------
+    @property
+    def shipping_address(self) -> str:
+        return self._shipping_address
+
+    @shipping_address.setter
+    def shipping_address(self, value: str):
+        if not isinstance(value, str):
+            raise TypeError("shipping_address must be a string")
+        if not value.strip():
+            raise ValueError("shipping_address cannot be empty")
+        self._shipping_address = value
+
+    # ---------- Total Price (read-only) ----------
+    @property
+    def total_price(self) -> float:
+        return self.total_price
+
+
+    @property
+    def payment_status(self):
+        return self.payment_status
+    @payment_status.setter
+    def payment_status(self, value):
+        if value in data.order_payment_status:
+            print(colorama.Fore.CYAN + f"the order payment set to {value}")
+            self.payment_status = value
+        else:
+            print(colorama.Fore.YELLOW + "invalid payment status")
+
+
+            
