@@ -1,0 +1,87 @@
+from admin import admin_auth
+
+import questionary
+from rich.panel import Panel
+from rich.text import Text
+from rich.console import Console
+console = Console()
+
+import colorama
+colorama.init(autoreset=True)
+
+import functions
+
+
+def main():
+
+    while True:
+
+        title = Text("MAIN MENU", justify="center", style="bold white")
+
+        console.print(
+            Panel(title, border_style="white", width=40)
+        )
+
+        choice = questionary.select(
+            "please choose one >>> ",
+            choices=[
+                "1. ADMIN MENU",
+                "2. CUSTOMER MENU",
+                "3. SELLER MENU",
+                "4. GUEST MENU",
+                "5. HELP / SUPPORT",
+                "6. ORDER MENU",
+                "7. EXIT"
+            ]
+        ).ask()
+
+        if choice == "1. ADMIN MENU":
+
+            logged_in_admin = admin_auth()
+
+
+            if logged_in_admin is not None:
+                functions.admin_menu(logged_in_admin)
+            else:
+                
+                title = Text("login fialed, access denied.", justify="center", style="bold red")
+
+                console.print(
+                    Panel(title, border_style="red", width=40)
+                )
+
+
+        elif choice == "2. CUSTOMER MENU":
+            functions.customer_menu()
+
+        elif choice == "3. SELLER MENU":
+            functions.seller_menu()
+
+        elif choice == "4. GUEST MENU":
+            functions.guest_menu()
+
+        elif choice == "5. HELP / SUPPORT":
+            pass
+
+        elif choice == "6. ORDER MENU":
+            functions.order_menu()
+
+        elif choice == "7. EXIT":
+
+            title = Text("good bye", justify="center", style="bold yellow")
+
+            console.print(
+                Panel(title, border_style="yellow", width=40)
+            )
+
+            break
+
+        else:
+            print("Access denied.")
+
+
+if __name__ == "__main__":
+    main()
+
+
+
