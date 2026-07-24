@@ -1,0 +1,352 @@
+import object_oriented_programming
+import functions
+import colorama
+colorama.init(autoreset=True)
+import json
+import os
+import re
+import hashlib
+import secrets
+import questionary
+import mysql.connector
+
+
+from rich.text import Text
+from mysql.connector import errorcode
+from rich.table import Table
+from rich.panel import Panel
+
+from rich.console import Console
+console = Console()
+
+
+# ================== Database Setup ==================
+def setup_database():
+
+    try:
+        # Connect to MySQL server (no database yet)
+        conn = mysql.connector.connect(
+            host="localhost",
+            port=3306,
+            user="root",
+            password="MY$sql2025"
+        )
+        cursor = conn.cursor()
+        cursor.execute("CREATE DATABASE IF NOT EXISTS onlineshop")
+        conn.commit()
+        conn.close()
+
+        # Connect to the onlineshop database
+        conn = mysql.connector.connect(
+            host="localhost",
+            port=3306,
+            user="root",
+            password="MY$sql2025",
+            database="onlineshop"
+        )
+        cursor = conn.cursor()
+
+        # Create admin table if not exists
+        cursor.execute("""
+                       CREATE TABLE admin (
+                            id_number VARCHAR(30) NOT NULL PRIMARY KEY,
+                            first_name VARCHAR(50) NOT NULL,
+                            last_name VARCHAR(50) NOT NULL,
+                            age INT CHECK (age >= 18 AND age <= 100),
+                            gender VARCHAR(20) NOT NULL CHECK (gender IN ('Male', 'Female', 'Other')),
+                            phone VARCHAR(15) NOT NULL,
+                            address TEXT NOT NULL,
+                            email VARCHAR(100) NOT NULL UNIQUE,
+                            original_password VARCHAR(255) NOT NULL,
+                            main_admin TINYINT NOT NULL DEFAULT 0
+            )
+        """)
+        conn.commit()
+        conn.close()
+
+        functions.spinning(10)
+        console.print(Panel("[bold green]Connected to MySQL and ensured 'onlineshop' database exists.[/bold green]", expand=False))
+
+    except mysql.connector.Error as err:
+        title = Text(f"Database setup error: {err}", justify="center", style="bold red")
+
+        console.print(
+            Panel(title, border_style="red", width=40)
+        )
+
+
+
+# ================== Password Hashing ==================
+def hash_password(password: str, salt: str) -> str:
+    return hashlib.sha256((salt + password).encode()).hexdigest()
+
+
+# ================== Admin Signup ==================
+def admin_signup():
+    setup_database()
+
+    admin = object_oriented_programming.Admin()
+
+    # Generate admin_id
+    admin_id = functions.id_number_generator()
+
+    title = Text(F"YOUR ADMIN ID IS{admin_id}", justify="center", style="bold cyan")
+
+    console.print(
+        Panel(title, border_style="cyan", width=40)
+    )
+
+    # --- Input fields with validation ---
+    while True:
+        first = input("Enter first name: ").strip()
+        if first.isalpha():
+            admin.first_name = first
+            break
+        console.print("[red]Invalid first name. Use letters only.[/red]")
+
+    while True:
+        last = input("Enter last name: ").strip()
+        if last.isalpha():
+            admin.last_name = last
+            break
+        console.print("[red]Invalid last name. Use letters only.[/red]")
+
+    while True:
+        try:
+            age = int(input("Enter age: ").strip())
+            if 18 <= age <= 100:
+                admin.age = age
+                break
+        except ValueError:
+            pass
+        console.print("[red]Invalid age. Enter a number between 18 and 100.[/red]")
+
+    while True:
+        gender = input("Enter gender (Male/Female/Other): ").strip().lower()
+        if gender in ["male", "female", "other"]:
+            admin.gender = gender
+            break
+        console.print("[red]Invalid gender. Choose Male, Female, or Other.[/red]")
+
+    while True:
+        phone = input("Enter phone number: ").strip()
+        if phone.isdigit() and 10 <= len(phone) <= 15:
+            admin.phone = phone
+            break
+        console.print("[red]Invalid phone number. Use 10–15 digits only.[/red]")
+
+    while True:
+        address = input("Enter address: ").strip()
+        if address:
+            admin.address = address
+            break
+        console.print("[red]Address cannot be empty.[/red]")
+
+    while True:
+        email = input("Enter email: ").strip().lower()
+        if re.fullmatch(r"[^@]+@[^@]+\.[^@]+", email):
+            admin.email = email
+            break
+        console.print("[red]Invalid email format.[/red]")
+
+    # --- Password input ---
+    while True:
+        password = input("Enter password (letters & numbers, min 6 chars): ").strip()
+        if re.fullmatch(r'(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}', password):
+            admin.__password = password
+            break
+        console.print("[red]Invalid password. Must include letters & numbers, min 6 characters.[/red]")
+
+    # Optional: hash password only tor json
+    salt = secrets.token_hex(16)
+    hashed_password = hash_password(password, salt)
+
+    # ensure main_admin exists and is valid
+    admin.main_admin = 1
+
+    # Save to JSON
+    admin_data = {
+        "id_number": admin_id,
+        "first_name": admin.first_name,
+        "last_name": admin.last_name,
+        "age": admin.age,
+        "gender": admin.gender,
+        "phone": admin.phone,
+        "address": admin.address,
+        "email": admin.email,
+        "original_password": password,
+        "main_admin": 1,
+        "password_hash": hashed_password,
+        "salt": salt
+    }
+
+    with open("admin_data.json", "w") as f:
+        json.dump(admin_data, f, indent=4)
+
+    console.print(Panel("[bold green]Signup successful.[/bold green]", expand=False))
+
+    # -------- Save to MySQL --------
+    conn = None
+    try:
+        conn = mysql.connector.connect(
+            host="localhost",
+            port=3306,
+            user="root",
+            password="MY$sql2025",
+            database="onlineshop"
+        )
+
+        cursor = conn.cursor()
+
+        main_admin_value = 1     # make sure data base always receives correct type
+
+        cursor.execute("""
+            INSERT INTO admin (
+                id_number,
+                first_name,
+                last_name,
+                age,
+                gender,
+                phone,
+                address,
+                email,
+                original_password,
+                main_admin
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            admin_id,
+            admin.first_name,
+            admin.last_name,
+            admin.age,
+            admin.gender,
+            admin.phone,
+            admin.address,
+            admin.email,
+            password,
+            main_admin_value
+        ))
+
+        conn.commit()
+
+        save_to_db = questionary.select(
+            "Do you intend to save the data in the database?",
+            choices=["Yes", "No"]
+        ).ask()
+
+        if save_to_db.lower() == "yes":
+            table = Table(title="Admin Saved to MySQL Database", show_header=True, header_style="bold magenta")
+            table.add_column("Field", style="cyan")
+            table.add_column("Value", style="yellow")
+            table.add_row("Admin ID", admin_id)
+            table.add_row("Name", f"{admin.first_name} {admin.last_name}")
+            table.add_row("Age", str(admin.age))
+            table.add_row("Gender", admin.gender)
+            table.add_row("Phone", admin.phone)
+            table.add_row("Email", admin.email)
+            table.add_row("Address", admin.address)
+            table.add_row("Password", password)
+            table.add_row("main admin", "YES")
+
+            functions.spinning(4)
+            console.print(Panel(table, title="[bold green]Data Saved Successfully[/bold green]", expand=False))
+        else:
+            console.print("[yellow]⚠ User chose NOT to save data to database.[/yellow]")
+
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_DUP_ENTRY:
+            console.print(Panel("[bold red]Email or Admin ID already exists in database.[/bold red]", expand=False))
+        else:
+            console.print(Panel(f"[bold red]MySQL Error: {err}[/bold red]", expand=False))
+
+    finally:
+        if conn:
+            conn.close()
+
+    return admin_id, admin.email
+
+
+
+# ================== Admin Login ==================
+def admin_login():
+    
+    title = Text("LOGIN ADMIN", justify="center", style="bold white")
+
+    console.print(
+        Panel(title, border_style="white", width=40)
+    )
+
+    try:
+        conn = mysql.connector.connect(
+            host="localhost",
+            port=3306,
+            user="root",
+            password="MY$sql2025",
+            database="onlineshop"
+        )
+        cursor = conn.cursor(dictionary=True)
+
+        while True:
+            login_id = input("Enter your Admin ID: ").strip()
+            login_email = input("Enter your email: ").strip().lower()
+            login_password = input("Enter your password: ").strip()
+
+            cursor.execute(
+                "SELECT * FROM admin WHERE id_number=%s AND email=%s AND original_password=%s",
+                (login_id, login_email, login_password)
+            )
+            admin_record = cursor.fetchone()
+
+            if admin_record:
+                console.print(
+                    Panel(
+                        f"[bold green]Login successful! Welcome {admin_record['first_name']} {admin_record['last_name']}[/bold green]",
+                        expand=False
+                    )
+                )
+
+                admin = object_oriented_programming.Admin()
+                admin.id_number = admin_record["id_number"]
+                admin.main_admin = admin_record["main_admin"]
+
+                return admin
+
+            console.print(
+                Panel(
+                    "[yellow]NO ADMIN INFORMATION FOUND, PLEASE SIGNUP[/yellow]",
+                    expand=False
+                )
+            )
+            break
+
+        return None
+
+    except mysql.connector.Error as err:
+        console.print(Panel(f"[bold red]MySQL Error: {err}[/bold red]", expand=False))
+        return None
+
+    finally:
+        try:
+            conn.close()
+        except:
+            pass
+
+
+# ================== Admin Authentication ==================
+def admin_auth():
+    admin_file = "admin_data.json"
+
+    # If no admin exists → signup
+    if not os.path.exists(admin_file) or os.stat(admin_file).st_size == 0:
+        
+        title = Text("no admin detected, please sign up.", justify="center", style="bold red")
+
+        console.print(
+            Panel(title, border_style="red", width=40)
+        )
+        
+        admin_signup()
+    else:
+        console.print(Panel("[cyan]Admin already exists. Please log in.[/cyan]", expand=False))
+
+    # Perform login once
+    return admin_login()
