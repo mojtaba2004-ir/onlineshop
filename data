@@ -1,0 +1,43 @@
+#++++++++++++++++++++++++++++++++++++++++++++++++++ ADMIN RELATED DATAS
+# data_admin_id = "admin1404"
+# data_admin_password = "adminpass04"
+
+
+#products
+brands = ["APPLE", "SAMSUNG", "GOOGLE", "HUAWEI", "XIAOMI", "ONEPLUS", "OPPO", "VIVO", "REALME", "MOTOROLA", "NOKIA", "SONY", "LG", "ASUS", "ZTE", "TECNO", "INFINIX", "HONOR", "BLACKBERRY", "PANASONIC", "SHARP", "POCO", "CANON", "NIKON", "SONY", "FUJIFILM", "PANASONIC", "OLYMPUS", "LEICA", "HASSELBLAD", "PENTAX", "SIGMA", "RICOH", "GOPRO", "DJI", "PHASE ONE", "YASHICA", "APPLE", "DELL", "HP", "LENOVO", "ASUS", "ACER", "MICROSOFT", "MSI", "RAZER", "SAMSUNG", "HUAWEI", "TOSHIBA", "SONY VAIO", "FUJITSU"]
+
+
+#first 7 -> phone  _  12-150 -> camera  _  0.9-8 -> laptop
+valid_megapixels = [12, 16, 32, 48, 64, 108, 200, 12, 16, 20, 24, 36, 42, 50, 61, 102, 150, 0.9, 1, 2, 5, 8]
+
+#phone 
+front_camera = [12, 16, 32, 48, 64, 108, 200]
+main_camera = [12, 16, 32, 48, 64, 108, 200]
+ram = [4, 8, 16, 32, 64, 128, 256]
+laptop_ram = [4, 8, 12, 16, 32, 64, 128]
+storage_capacity = [128, 256, 512, 1024]
+sim_slots = [1, 2]
+
+#camera
+camera_mgxl = [5, 8, 10, 12, 16, 20, 24, 32, 50, 100]
+video_resolution = [240, 360, 480, 720, 1080, 1440, 2160, 4320]
+
+
+#computer
+computer_ram = [4, 8, 16, 32, 64, 128]
+
+
+#user
+valid_genders = ["male", "female", "other"]
+
+#order
+order_status = ["pending", "delivered", "shipped", "cancelled"]
+order_payment_status = ["paid", "unpaid"]
+
+
+yes = ['yes', 'YES', 'Yes', 'YEs', 'yEs', 'yeS', 'yEs']
+no = ['no', 'NO', 'No', 'nO']
+yesno = ['yes', 'YES', 'Yes', 'YEs', 'yEs', 'yeS', 'yEs', 'no', 'NO', 'No', 'nO']
+
+
+allowed = ["phone", "camera", "laptop"]
